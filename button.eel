@@ -1,0 +1,71 @@
+{
+  "libName": "button",
+  "manufacturer": "Generic",
+  "description": "Attempt to write code for NXP Rapid IOT",
+  "version": "",
+  "eelVersion": "3",
+  "shoppingCarLinks": {},
+  "requires": [
+    "embedded"
+  ],
+  "elements": [
+    {
+      "name": "button",
+      "type": "button",
+      "icon": "EmbeddedRelay.svg",
+      "defaultAbility": "setbutton1On",
+      "defaultTrigger": "button1SetOn",
+      "hidden": false,
+      "abilities": [
+        {
+          "name": "setup",
+          "hidden": true,
+          "triggers": [],
+          "code": "ATMO_button_Config_t config;\r\nconfig.gpioDriverInstance = ATMO_PROPERTY(undefined, gpioDriverInstance);\r\nconfig.button1Pin = ATMO_PROPERTY(undefined, button1GpioPin);\r\nreturn ATMO_button_Init(&config) ? ATMO_Status_Success : ATMO_Status_Fail;\r\n"
+        },
+        {
+          "name": "setbutton1On",
+          "triggers": [
+            "button1SetOn"
+          ],
+          "code": "return ATMO_button_Setbutton1State(true) ? ATMO_Status_Success : ATMO_Status_Fail;\r\n"
+        },
+        {
+          "name": "setbutton1Off",
+          "triggers": [
+            "button1SetOff"
+          ],
+          "code": "return ATMO_buttonClick_Setbutton1State(false) ? ATMO_Status_Success : ATMO_Status_Fail;\r\n"
+        }
+      ],
+      "properties": [
+        {
+          "name": "gpioDriverInstance",
+          "input": "driverInstance",
+          "driverType": "gpio"
+        },
+        {
+          "name": "button1GpioPin",
+          "input": "number",
+          "value": "MB1_PWM"
+        }
+      ],
+      "triggers": [],
+      "variables": [],
+      "language": {
+        "en-US": {}
+      }
+    }
+  ],
+  "files": {
+    "common": {
+      "headers": {
+        "button.h": "#ifndef _ATMO_BUTTON_H_\r\n#define _ATMO_BUTTON_H_\r\n\r\n//#include \"../app_src/atmosphere_platform.h\"\r\n#include \"../atmo/core.h\"\r\n//#include \"../gpio/gpio.h\"\r\n\r\n\r\n\r\n\r\ntypedef struct {\r\n    ATMO_DriverInstanceHandle_t gpioDriverInstance;\r\n    ATMO_GPIO_Device_Pin_t button1Pin;\t\t\t\t\t// Type definition for a device pin\r\n} ATMO_button_Config_t;\r\n\r\n// Funtion Prototypes go here:\r\n\r\nbool ATMO_button_Setbutton1State(bool isOn);\r\n\r\n\r\n#endif"
+      },
+      "objects": {
+        "button.c": "\r\n#include \"button.h\"\r\n#include \"../gpio/gpio.h\"\r\n\r\n// Private internal storage of driver configuration\r\nstatic ATMO_button_Config_t _ATMO_button_PrivConfig;\r\n\r\n\r\nbool ATMO_button_Init(ATMO_button_Config_t *config)\r\n{\r\n    // Copy the configuration structure and store internally\r\n    memcpy(&_ATMO_button_PrivConfig, config, sizeof(ATMO_button_Config_t));\r\n\r\n    // Set the default configuration and state of button1\r\n    ATMO_GPIO_Config_t gpioConfig;\r\n    gpioConfig.pinMode = ATMO_GPIO_PinMode_Output_PushPull;\r\n    gpioConfig.initialState = ATMO_GPIO_PinState_Low;\r\n\r\n    return ATMO_GPIO_SetPinConfiguration(config->gpioDriverInstance, config->button1Pin, &gpioConfig) == ATMO_GPIO_Status_Success;\r\n}\r\n\r\nbool ATMO_button_Setbutton1State(bool isOn)\r\n{\r\n\tATMO_GPIO_PinState_t desiredPinState = isOn ? ATMO_GPIO_PinState_High : ATMO_GPIO_PinState_Low;\r\n    \r\n    return (ATMO_GPIO_SetPinState(_ATMO_button_PrivConfig.gpioDriverInstance, _ATMO_button_PrivConfig.button1Pin, desiredPinState) == ATMO_GPIO_Status_Success);\r\n}\r\n\t\r\n\t\r\n\r\n"
+      }
+    }
+  },
+  "md5": "16083bd67c61aec4852ac78fbd976479"
+}
